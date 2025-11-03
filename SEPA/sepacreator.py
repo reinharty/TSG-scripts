@@ -13,7 +13,7 @@ class SEPACreator:
     # depends on format and positions of columns in input file
     quartal_dict = {1:6, 2:8, 3:10, 4:12}
     abteilungen_dict = {"Abteilung BA": "Basketball", "Abteilung FU": "Fussball", "Abteilung HO": "Hockey",
-                        "Abteilung LA": "Leichtathletik", "Abteilung TT": "Tischtennis", "Abteilung TU": "Turnen"}
+                        "Abteilung LA": "Leichtathletik", "Abteilung TT": "Tischtennis", "Abteilung TU": "Turnen", "Gesamtverein": "Gesamtverein"}
 
     config = abteilung = timestamp = input_excel_file = output_names_file = None
     row_list = []
@@ -47,7 +47,7 @@ class SEPACreator:
             #QUARTAL
             a = (self.input_excel_file.iloc[i,self.quartal_dict.get(self.config.quarter)])#setzt das Quartal
             iban = self.input_excel_file.iloc[i,1]
-            if a != 0 and pd.notna(a) and pd.notna(iban) and (iban != "mit Lizenz" or iban != "ohne Lizenz") and iban != "IBAN":
+            if a != 0 and pd.notna(a) and pd.notna(iban) and (iban != "mit Lizenz" or iban != "ohne Lizenz") and iban != "IBAN" and ("Zwischensumme" not in self.input_excel_file.iloc[i,0]):
                 #zum aufrunden
                 a = ceil(a * 100) / 100.0
                 self.row_list.append((abteilung, self.input_excel_file.iloc[i,0], iban, str(self.input_excel_file.iloc[i,2]).upper(), a))
@@ -60,7 +60,10 @@ class SEPACreator:
 
     def createUebungsleiterliste(self):
         self.output_names_file = "" + self.timestamp + "-" + self.config.output_names_file +".xlsx"
-        self.dataFramePayments.to_excel(self.output_names_file, index=False, columns=['Abteilung', 'Name'], engine='xlsxwriter')
+
+        # Zeilen herausfiltern, bei denen 'Abteilung' == 'Gesamtverein' ist
+        df_filtered = self.dataFramePayments[self.dataFramePayments['Abteilung'] != 'Gesamtverein']
+        df_filtered.to_excel(self.output_names_file, index=False, columns=['Abteilung', 'Name'], engine='xlsxwriter')
 
     def createSEPAxml(self):
         z = SEPAPaymentGenerator(self.config, self.dataFramePayments)
