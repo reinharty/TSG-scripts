@@ -11,12 +11,14 @@ from SEPA.zipper import zipadd
 class SEPACreator:
 
     # depends on format and positions of columns in input file
-    quartal_dict = {1:6, 2:8, 3:10, 4:12}
+    quartal_dict = {1:7, 2:9, 3:11, 4:13}
     abteilungen_dict = {"Abteilung BA": "Basketball", "Abteilung FU": "Fussball", "Abteilung HO": "Hockey",
                         "Abteilung LA": "Leichtathletik", "Abteilung TT": "Tischtennis", "Abteilung TU": "Turnen", "Gesamtverein": "Gesamtverein"}
 
     config = abteilung = timestamp = input_excel_file = output_names_file = None
     row_list = []
+
+    sepafile_name = ""
 
     #dataFramePayments = pd.DataFrame(columns=['Abteilung', 'Name', 'IBAN', 'BIC', 'Betrag'])
     dataFramePayments = None
@@ -67,7 +69,7 @@ class SEPACreator:
 
     def createSEPAxml(self):
         z = SEPAPaymentGenerator(self.config, self.dataFramePayments)
-        z.generatePayments()
+        self.sepafile_name = z.generatePayments()
 
     def createBegleitzettel(self):
         self.row_list.append((None, None, None, "Gesamtbetrag", self.dataFramePayments['Betrag'].sum()))
@@ -78,7 +80,7 @@ class SEPACreator:
         try:
             os.remove("Überweisungen_Übungsleiter.zip") #remove zip of a prior run
         finally:
-            #zipadd("Überweisungen_Übungsleiter.zip", z.filename)
+            zipadd("Überweisungen_Übungsleiter.zip", self.sepafile_name)
             zipadd("Überweisungen_Übungsleiter.zip", self.output_names_file)
             zipadd("Überweisungen_Übungsleiter.zip", "Begleitzettel.xlsx")
             print("Created Überweisungen_Übungsleiter.zip")
