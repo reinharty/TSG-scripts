@@ -62,7 +62,7 @@ class SEPAPaymentGenerator:
                     '</InstrId><EndToEndId>NOTPROVIDED</EndToEndId></PmtId><Amt><InstdAmt Ccy="EUR">' + \
                     "{:.2f}".format(float(self.betrag)) + '</InstdAmt></Amt><CdtrAgt><FinInstnId><BIC>' + \
                     self.bic + '</BIC></FinInstnId></CdtrAgt><Cdtr><Nm>' + self.name +'</Nm></Cdtr><CdtrAcct><Id><IBAN>' \
-                    + self.iban +'</IBAN></Id></CdtrAcct><RmtInf><Ustrd>'+self.config.iban_message+'</Ustrd></RmtInf></CdtTrfTxInf>\n'
+                    + self.iban +'</IBAN></Id></CdtrAcct><RmtInf><Ustrd>'+self.config.iban_message+' '+str(self.config.quarter)+'</Ustrd></RmtInf></CdtTrfTxInf>\n'
             self.counter += 1
 
         text += '</PmtInf></CstmrCdtTrfInitn></Document>'
