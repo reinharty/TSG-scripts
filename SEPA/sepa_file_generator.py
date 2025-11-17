@@ -2,6 +2,7 @@
 import pandas as pd
 import datetime
 import configuration
+from schwifty import *
 
 class SEPAPaymentGenerator:
  #todo alles mit config ersetzen
@@ -49,11 +50,14 @@ class SEPAPaymentGenerator:
 
         for i in range(0, self.numLines):
             self.name = self.df.iloc[i, 1]
-            self.iban = str(self.df.iloc[i, 2])
-            self.bic = self.df.iloc[i, 3]
+            self.iban = str(self.df.iloc[i, 2]).strip()
+            self.bic = self.extendBIC(self.df.iloc[i, 3])
             self.betrag = self.df.iloc[i, 4]
 
-            self.bic = self.extendBIC(self.bic)
+            print(self.name)
+            IBAN(self.iban).validate(True)
+            BIC(self.bic).validate()
+
             text += '<CdtTrfTxInf><PmtId><InstrId>' + str(self.counter+1) + \
                     '</InstrId><EndToEndId>NOTPROVIDED</EndToEndId></PmtId><Amt><InstdAmt Ccy="EUR">' + \
                     "{:.2f}".format(float(self.betrag)) + '</InstdAmt></Amt><CdtrAgt><FinInstnId><BIC>' + \
@@ -68,3 +72,4 @@ class SEPAPaymentGenerator:
         f.close()
 
         print(text)
+        return self.filename
